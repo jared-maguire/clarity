@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup">
+    <h1 class="logo">Clarity</h1>
+    <p class="hint" id="hint">Reader mode for this tab</p>
+    <button id="toggle" class="toggle-btn">Enable</button>
+
+    <div class="font-picker" id="font-picker">
+      <label>Font</label>
+      <div class="font-options">
+        <button class="font-btn active" data-font="sans">Sans</button>
+        <button class="font-btn" data-font="serif">Serif</button>
+        <button class="font-btn" data-font="mono">Mono</button>
+      </div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

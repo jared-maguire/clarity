@@ -1,0 +1,282 @@
+/* ============================================================
+   Clarity Reader
+   Dark background, preserves original content styling,
+   JS contrast-fixer handles bad color combos
+   ============================================================ */
+
+html, body {
+  background: #0e0e0e !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+}
+
+/* ============================================================
+   Root container
+   ============================================================ */
+#clarity-reader-root {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 64px 32px 120px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 22px;
+  line-height: 1.8;
+  color: #d0d0d0;
+  background: #0e0e0e;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ============================================================
+   Header — always our styling, never from original page
+   ============================================================ */
+.clarity-reader-header {
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+}
+
+.clarity-reader-site {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.clarity-reader-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 44px;
+  line-height: 1.15;
+  font-weight: 800;
+  margin: 0 0 20px;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+
+.clarity-reader-meta {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  color: #666;
+  letter-spacing: 0.01em;
+}
+
+/* ============================================================
+   Article content — soft defaults, original styles can override
+   ============================================================ */
+.clarity-reader-content {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  color: #d0d0d0;
+}
+
+.clarity-reader-content p {
+  margin-bottom: 1.5em;
+  line-height: 1.8;
+}
+
+.clarity-reader-content h1,
+.clarity-reader-content h2,
+.clarity-reader-content h3,
+.clarity-reader-content h4,
+.clarity-reader-content h5,
+.clarity-reader-content h6 {
+  font-weight: 700;
+  line-height: 1.25;
+  color: #fff;
+}
+
+.clarity-reader-content h1 { font-size: 34px; margin: 2.2em 0 0.7em; }
+.clarity-reader-content h2 { font-size: 28px; margin: 2em 0 0.6em; }
+.clarity-reader-content h3 { font-size: 23px; margin: 1.8em 0 0.5em; }
+.clarity-reader-content h4 { font-size: 20px; margin: 1.5em 0 0.4em; }
+
+.clarity-reader-content strong,
+.clarity-reader-content b {
+  font-weight: 700;
+  color: #eee;
+}
+
+.clarity-reader-content em,
+.clarity-reader-content i {
+  font-style: italic;
+}
+
+/* Links — always visible blue */
+.clarity-reader-content a,
+.clarity-reader-content a:link,
+.clarity-reader-content a:visited {
+  color: #7eb8ff !important;
+  text-decoration: underline;
+  text-decoration-color: rgba(126, 184, 255, 0.3);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+}
+
+.clarity-reader-content a:hover {
+  color: #a8d0ff !important;
+  text-decoration-color: rgba(126, 184, 255, 0.7);
+}
+
+/* Images */
+.clarity-reader-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 1.8em 0;
+}
+
+.clarity-reader-content figure {
+  margin: 2em 0;
+}
+
+.clarity-reader-content figcaption {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+/* Blockquotes */
+.clarity-reader-content blockquote {
+  border-left: 3px solid #333;
+  margin: 1.8em 0;
+  padding: 0.2em 0 0.2em 1.5em;
+  color: #999;
+  font-style: italic;
+  font-size: 21px;
+}
+
+/* Code */
+.clarity-reader-content pre {
+  background-color: #161616;
+  padding: 20px 22px;
+  border-radius: 8px;
+  border: 1px solid #222;
+  overflow-x: auto;
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 1.8em 0;
+}
+
+.clarity-reader-content code {
+  font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', Menlo, Consolas, monospace;
+  font-size: 0.82em;
+  background-color: #1a1a1a;
+  color: #bbb;
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+
+.clarity-reader-content pre code {
+  background-color: transparent;
+  padding: 0;
+  font-size: inherit;
+  color: #aaa;
+}
+
+/* Lists */
+.clarity-reader-content ul,
+.clarity-reader-content ol {
+  padding-left: 1.5em;
+  margin: 1.3em 0;
+  line-height: 1.8;
+}
+
+.clarity-reader-content li {
+  margin: 0.5em 0;
+  padding-left: 0.3em;
+}
+
+.clarity-reader-content li::marker {
+  color: #555;
+}
+
+/* Tables */
+.clarity-reader-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.8em 0;
+  font-size: 16px;
+}
+
+.clarity-reader-content th,
+.clarity-reader-content td {
+  border: 1px solid #252525;
+  padding: 10px 14px;
+  text-align: left;
+  color: #bbb;
+}
+
+.clarity-reader-content th {
+  background-color: #161616;
+  font-weight: 600;
+  color: #ddd;
+}
+
+/* Horizontal rules */
+.clarity-reader-content hr {
+  border: none;
+  height: 1px;
+  background-color: #222;
+  margin: 2.5em 0;
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.clarity-reader-footer {
+  margin-top: 64px;
+  padding-top: 20px;
+  border-top: 1px solid #1a1a1a;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+}
+
+.clarity-reader-footer a {
+  color: #555 !important;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.clarity-reader-footer a:hover {
+  color: #999 !important;
+  text-decoration: underline;
+}
+
+/* ============================================================
+   Error
+   ============================================================ */
+.clarity-reader-error {
+  text-align: center;
+  padding: 100px 28px;
+}
+
+.clarity-reader-error h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  color: #ddd;
+}
+
+.clarity-reader-error p {
+  font-size: 15px;
+  color: #666;
+}
+
+/* ============================================================
+   Selection & scroll
+   ============================================================ */
+#clarity-reader-root ::selection {
+  background: rgba(126, 184, 255, 0.2);
+  color: #fff;
+}
+
+html {
+  scroll-behavior: smooth;
+}

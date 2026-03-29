@@ -1,6 +1,6 @@
-// Tabs with reader mode enabled — persists for tab lifetime
-const readerTabs = new Set();
-let fontPref = 'sans'; // global default
+// Tabs with reader mode enabled — persisted to survive service worker restarts
+let readerTabs = new Set();
+let fontPref = 'sans';
 
 const FONTS = {
   sans: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
@@ -8,20 +8,27 @@ const FONTS = {
   mono: "'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas, monospace"
 };
 
-// Load saved font pref
-chrome.storage.local.get('clarity_font', (r) => {
+// Restore state from storage on service worker startup
+chrome.storage.session.get(['clarity_reader_tabs', 'clarity_font'], (r) => {
+  if (r.clarity_reader_tabs) readerTabs = new Set(r.clarity_reader_tabs);
   if (r.clarity_font) fontPref = r.clarity_font;
 });
+
+function saveTabState() {
+  chrome.storage.session.set({ clarity_reader_tabs: [...readerTabs] });
+}
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'toggle') {
     const tabId = msg.tabId;
     if (readerTabs.has(tabId)) {
       readerTabs.delete(tabId);
+      saveTabState();
       chrome.tabs.reload(tabId);
       sendResponse({ active: false, font: fontPref });
     } else {
       readerTabs.add(tabId);
+      saveTabState();
       injectReader(tabId);
       sendResponse({ active: true, font: fontPref });
     }
@@ -29,8 +36,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     sendResponse({ active: readerTabs.has(msg.tabId), font: fontPref });
   } else if (msg.type === 'setFont') {
     fontPref = msg.font;
+    chrome.storage.session.set({ clarity_font: fontPref });
     chrome.storage.local.set({ clarity_font: fontPref });
-    // Apply to the tab immediately if reader is active
     if (readerTabs.has(msg.tabId)) {
       applyFont(msg.tabId, fontPref);
     }
@@ -39,9 +46,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   return true;
 });
 
-// Re-inject reader mode on every navigation within a reader tab
+// On navigation in a reader tab:
+// 1. At 'loading': hide the page so user sees black instead of raw content flash
+// 2. At 'complete': inject reader mode, then reveal
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-  if (readerTabs.has(tabId) && changeInfo.status === 'complete') {
+  if (!readerTabs.has(tabId)) return;
+
+  if (changeInfo.status === 'loading') {
+    chrome.scripting.insertCSS({
+      target: { tabId },
+      css: 'html { visibility: hidden !important; background: #0e0e0e !important; }'
+    }).catch(() => {});
+  }
+
+  if (changeInfo.status === 'complete') {
     injectReader(tabId);
   }
 });
@@ -49,19 +67,24 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
 // Clean up when tab closes
 chrome.tabs.onRemoved.addListener((tabId) => {
   readerTabs.delete(tabId);
+  saveTabState();
 });
 
 function injectReader(tabId) {
+  chrome.scripting.insertCSS({
+    target: { tabId },
+    files: ['styles/reader-mode.css']
+  }).catch(() => {});
+
   chrome.scripting.executeScript({
     target: { tabId },
     files: ['src/content/reader-mode.js']
   }).then(() => {
     applyFont(tabId, fontPref);
-  }).catch(() => {});
-
-  chrome.scripting.insertCSS({
-    target: { tabId },
-    files: ['styles/reader-mode.css']
+    chrome.scripting.insertCSS({
+      target: { tabId },
+      css: 'html { visibility: visible !important; }'
+    }).catch(() => {});
   }).catch(() => {});
 }
 
@@ -72,7 +95,6 @@ function applyFont(tabId, font) {
     func: (f) => {
       const root = document.getElementById('clarity-reader-root');
       if (!root) return;
-      // Set on root and propagate to all children
       root.style.setProperty('font-family', f, 'important');
       for (const el of root.querySelectorAll('.clarity-reader-content, .clarity-reader-content p, .clarity-reader-content li, .clarity-reader-content blockquote, .clarity-reader-content td, .clarity-reader-content th')) {
         el.style.setProperty('font-family', f, 'important');
